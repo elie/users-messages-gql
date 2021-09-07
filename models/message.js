@@ -1,8 +1,13 @@
 const db = require("../db");
 
 class Message {
-  static async all() {
-    const result = await db.query(`SELECT * FROM messages`);
+  static async all({ where }) {
+    const username = where?.username;
+    let queryStr = `SELECT * FROM messages`;
+    if (username) {
+      queryStr += ` WHERE username = $1`;
+    }
+    const result = await db.query(queryStr, [username]);
 
     return result.rows;
   }
@@ -35,29 +40,9 @@ class Message {
    */
 
   static async get(id) {
-    const result = await db.query(
-      `SELECT m.id,
-                m.username,
-                f.first_name AS from_first_name,
-                f.last_name AS from_last_name,
-                m.body,
-          FROM messages AS m
-            JOIN users AS f ON m.username = f.username
-          WHERE m.id = $1`,
-      [id]
-    );
+    const result = await db.query(`SELECT * FROM messages WHERE id = $1`, [id]);
 
-    let m = result.rows[0];
-
-    return {
-      id: m.id,
-      body: m.body,
-      user: {
-        username: m.from_username,
-        first_name: m.from_first_name,
-        last_name: m.from_last_name
-      }
-    };
+    return result.rows[0];
   }
 }
 

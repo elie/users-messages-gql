@@ -3,13 +3,17 @@
 const { Client } = require("pg");
 
 let DB_URI = "postgresql:///users-messages-gql";
+const options = {
+  connectionString: process.env.DATABASE_URL || DB_URI
+};
 
-let db = new Client({
-  connectionString: process.env.DATABASE_URL || DB_URI,
-  ssl: {
+if (process.env.NODE_ENV === "production") {
+  options.ssl = {
     rejectUnauthorized: false
-  }
-});
+  };
+}
+
+let db = new Client(options);
 
 db.connect();
 
