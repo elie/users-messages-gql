@@ -1,13 +1,15 @@
 const db = require("../db");
 
 class Message {
-  static async all({ where }) {
+  static async all({ where } = {}) {
     const username = where?.username;
     let queryStr = `SELECT * FROM messages`;
+    let params = [];
     if (username) {
       queryStr += ` WHERE username = $1`;
+      params.push(username)
     }
-    const result = await db.query(queryStr, [username]);
+    const result = await db.query(queryStr, params);
 
     return result.rows;
   }
